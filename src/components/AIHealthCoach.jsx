@@ -33,12 +33,16 @@ const AIHealthCoach = ({ riskLevel, userData }) => {
         const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
         const prompt = `
-          As a professional AI Health Coach for SurakshaAI, analyze the following health data:
-          - Risk Level Detected: ${riskLevel}
-          - User Metrics: Age ${userData.age}, Avg Sleep ${userData.sleep} hours, Activity Level ${userData.activity}.
+          As a professional AI Health Coach for SurakshaAI, provide a comprehensive clinical analysis for the following patient profile:
+          - Risk Level: ${riskLevel}
+          - Biometrics: Gender ${userData.gender}, Age ${userData.age}, Height ${userData.height}cm, Weight ${userData.weight}kg.
+          - Medical History: ${userData.conditions.join(', ') || 'None reported'}.
+          - Lifestyle: Sleep ${userData.sleep}h, Activity ${userData.activity}, Stress ${userData.stress}, Alcohol ${userData.alcohol}, Smoking ${userData.smoking}.
           
-          Provide a concise (2-3 sentences), professional, and encouraging health insight. 
-          Suggest why a specific doctor (Cardiologist for High Risk, Physician for Medium, Wellness for Low) is recommended.
+          Provide a professional 3-sentence analysis. 
+          1. Evaluate the primary risk factor (e.g., BMI, chronic condition, or lifestyle).
+          2. Explain why a ${riskLevel === 'High' ? 'Cardiologist' : riskLevel === 'Medium' ? 'General Physician' : 'Wellness Expert'} is the recommended next step.
+          3. Offer one specific, high-impact lifestyle change.
         `;
 
         const result = await model.generateContent(prompt);
