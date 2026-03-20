@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Plus, Mail, Lock } from 'lucide-react';
+import { Activity, Plus, Mail, Lock, User } from 'lucide-react';
 
 const LoginPage = () => {
   const [isExpanding, setIsExpanding] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     setIsExpanding(true);
     // Wait for the expansion animation to finish before navigating to the home page
@@ -27,11 +28,30 @@ const LoginPage = () => {
           <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4 border border-emerald-500/20 shadow-inner">
             <Activity className="w-8 h-8 text-emerald-400" strokeWidth={2.5} />
           </div>
-          <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
-          <p className="text-gray-400 mt-2 text-center text-sm">Secure access to your health portal</p>
+          <h2 className="text-3xl font-bold text-white transition-all">
+            {isSignUp ? 'Create Account' : 'Welcome Back'}
+          </h2>
+          <p className="text-gray-400 mt-2 text-center text-sm">
+            {isSignUp ? 'Join SurakshaAI for proactive health monitoring' : 'Secure access to your health portal'}
+          </p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <div className="animate-[fade-in-modal_0.4s_ease-out]">
+              <label className="block text-sm font-medium text-gray-300 mb-1 ml-1">Full Name</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <input 
+                  type="text" 
+                  required
+                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-gray-600 text-white"
+                  placeholder="John Doe"
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1 ml-1">Email Address</label>
             <div className="relative">
@@ -58,11 +78,24 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <div className="pt-6 flex justify-center relative">
+          <div className="flex justify-between items-center text-xs mt-2 px-1">
+            <button 
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-emerald-400 hover:text-emerald-300 transition-colors font-semibold"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Need an account? Sign Up'}
+            </button>
+            {!isSignUp && (
+               <a href="#" className="text-gray-500 hover:text-gray-400 transition-colors">Forgot Password?</a>
+            )}
+          </div>
+
+          <div className="pt-4 flex justify-center relative">
             <button 
               type="submit"
               className="group relative flex items-center justify-center w-16 h-16 bg-emerald-500 text-white rounded-full shadow-[0_0_20px_rgba(16,185,129,0.4)] hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] hover:scale-110 active:scale-95 transition-all outline-none"
-              title="Login and Enter"
+              title={isSignUp ? "Sign Up" : "Sign In"}
             >
               <Plus className="w-8 h-8 group-hover:rotate-90 transition-transform duration-500" strokeWidth={3} />
             </button>
