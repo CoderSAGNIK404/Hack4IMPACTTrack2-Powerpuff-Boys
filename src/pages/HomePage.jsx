@@ -12,6 +12,7 @@ const HomePage = () => {
   const [pulse, setPulse] = useState(72);
   const [userName, setUserName] = useState("");
   const [activeModal, setActiveModal] = useState(null); // 'clinics', 'profile', 'history', 'settings'
+  const [assessment, setAssessment] = useState(null);
 
   useEffect(() => {
     const savedName = localStorage.getItem('suraksha_user_name');
@@ -20,6 +21,12 @@ const HomePage = () => {
     } else {
       setUserName("Explorer"); // Default if not found
     }
+
+    // Load latest assessment
+    try {
+      const savedAssesment = localStorage.getItem('suraksha_latest_assessment');
+      if (savedAssesment) setAssessment(JSON.parse(savedAssesment));
+    } catch(e) {}
   }, []);
 
   // Simulate live heartbeat
@@ -89,7 +96,14 @@ const HomePage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                    <StatCard icon={<Heart className="w-6 h-6" />} label="Heart Rate" value={pulse} unit="BPM" trend="Live" color="rose" />
                    <StatCard icon={<Activity className="w-6 h-6" />} label="Blood Pressure" value="120/80" unit="mmHg" trend="Stable" color="emerald" />
-                   <StatCard icon={<Zap className="w-6 h-6" />} label="Risk Score" value="Low" unit="Risk" trend="Calculated" color="blue" />
+                   <StatCard 
+                     icon={<Zap className="w-6 h-6" />} 
+                     label="Risk Score" 
+                     value={assessment?.riskLevel || "Low"} 
+                     unit="Risk" 
+                     trend="Calculated" 
+                     color={assessment?.riskLevel === 'High' ? 'red' : assessment?.riskLevel === 'Medium' ? 'yellow' : 'blue'} 
+                   />
                 </div>
                 
                 <div className="p-10 rounded-[3rem] bg-white/5 border border-white/10 relative overflow-hidden group">
@@ -99,14 +113,20 @@ const HomePage = () => {
                    <div className="relative z-10 space-y-6">
                       <div className="text-sm font-black uppercase tracking-[0.3em] text-emerald-500/60">AI Daily Summary</div>
                       <h3 className="text-3xl font-black text-white max-w-lg leading-tight">
-                         Your biological markers indicate <span className="text-emerald-400">optimal performance</span> today.
+                         {assessment ? (
+                           assessment.riskLevel === 'High' ? <>Your biological markers indicate <span className="text-red-400">critical risks</span> today.</> :
+                           assessment.riskLevel === 'Medium' ? <>Your biological markers indicate <span className="text-yellow-400">elevated risks</span> today.</> :
+                           <>Your biological markers indicate <span className="text-emerald-400">optimal performance</span> today.</>
+                         ) : (
+                           <>Your biological markers indicate <span className="text-emerald-400">optimal performance</span> today.</>
+                         )}
                       </h3>
                       <p className="text-emerald-50/40 max-w-md leading-relaxed">
-                         The clinical node detected no anomalies in your last sync. Continue your current routine and stay hydrated.
+                         {assessment ? assessment.suggestions[0] : "The clinical node detected no anomalies in your last sync. Continue your current routine and stay hydrated."}
                       </p>
-                      <button className="text-emerald-400 font-black text-sm uppercase tracking-widest hover:text-emerald-300 transition-colors flex items-center gap-2">
+                      <Link to="/result" className="text-emerald-400 font-black text-sm uppercase tracking-widest hover:text-emerald-300 transition-colors inline-flex items-center gap-2">
                          Full medical report <ArrowRight className="w-4 h-4" />
-                      </button>
+                      </Link>
                    </div>
                 </div>
              </div>

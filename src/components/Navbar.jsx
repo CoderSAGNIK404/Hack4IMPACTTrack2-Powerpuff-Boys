@@ -4,13 +4,13 @@ import SOSButton from './SOSButton';
 
 const Navbar = ({ onOpenSuraksha }) => {
   return (
-    <nav className="h-20 w-full flex items-center justify-between px-8 z-50 animate-[slide-up-fade_1s_ease-out_forwards] opacity-0 relative">
-      <Link to="/home" className="flex items-center gap-2 group transition-transform hover:scale-105">
-        <Activity className="text-emerald-400 w-8 h-8 group-hover:animate-pulse" strokeWidth={2.5} />
-        <span className="text-2xl font-black tracking-tighter text-white">
-          Suraksha<span className="text-emerald-400">AI</span>
-        </span>
-      </Link>
+    <nav className="h-20 w-full flex items-center justify-between px-8 z-50 animate-[slide-up-fade_1s_ease-out_forwards] opacity-0 relative border-b border-white/5 bg-[#05070a]/50 backdrop-blur-xl">
+      <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
+              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Node: Active</span>
+          </div>
+      </div>
 
       {/* SOS Button always centered in navbar */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">

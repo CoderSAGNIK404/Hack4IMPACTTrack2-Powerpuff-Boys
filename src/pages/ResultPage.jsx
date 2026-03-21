@@ -14,6 +14,11 @@ const ResultPage = () => {
 
   useEffect(() => {
     if (!location.state) {
+      const saved = localStorage.getItem('suraksha_latest_assessment');
+      if (saved) {
+        setResult(JSON.parse(saved));
+        return;
+      }
       navigate('/form');
       return;
     }
@@ -78,7 +83,11 @@ const ResultPage = () => {
     // Add BMI-specific suggestion
     if (bmi > 25) suggestions.push(`Your BMI of ${bmi.toFixed(1)} indicates weight management may be beneficial.`);
 
-    setResult({ riskLevel, suggestions, bmi: bmi.toFixed(1) });
+    const finalResult = { riskLevel, suggestions, bmi: bmi.toFixed(1), timestamp: new Date().toISOString() };
+    setResult(finalResult);
+    
+    // Store latest assessment
+    localStorage.setItem('suraksha_latest_assessment', JSON.stringify(finalResult));
   }, [location.state, navigate]);
 
   const scrollToBooking = () => {

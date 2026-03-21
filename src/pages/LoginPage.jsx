@@ -6,23 +6,29 @@ const LoginPage = () => {
   const [isExpanding, setIsExpanding] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsExpanding(true);
     
-    // Store user data in "Local Biometric Database"
-    if (name) {
-      localStorage.setItem('suraksha_user_name', name);
-    } else if (!isSignUp) {
-      // For Sign In, if name is not set, try to keep existing or default to "User"
-      if (!localStorage.getItem('suraksha_user_name')) {
-        localStorage.setItem('suraksha_user_name', 'Patient');
-      }
+    // Sync with MongoDB Global Node
+    try {
+        const apiUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+        await fetch(`${apiUrl}/user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name || 'Explorer', email: email })
+        });
+    } catch (err) {
+        console.error("Clinical Node Sync Error:", err);
     }
 
-    // Wait for the expansion animation to finish before navigating to the home page
+    localStorage.setItem('suraksha_user_name', name || 'Explorer');
+    localStorage.setItem('suraksha_user_email', email);
+
+    // Transition to Clinical Hub
     setTimeout(() => {
       navigate('/home');
     }, 1400); 
@@ -70,12 +76,14 @@ const LoginPage = () => {
             <label className="block text-sm font-medium text-gray-300 mb-1 ml-1">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
-              <input 
-                type="email" 
-                required
-                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-gray-600 text-white"
-                placeholder="you@example.com"
-              />
+                <input 
+                  type="email" 
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all placeholder:text-gray-600 text-white"
+                  placeholder="you@example.com"
+                />
             </div>
           </div>
           

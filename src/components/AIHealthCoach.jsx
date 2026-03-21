@@ -12,19 +12,34 @@ const AIHealthCoach = ({ riskLevel, userData }) => {
       setAnalyzing(true);
       setError(false);
 
+      // Check if we are loading from a cached assessment (userData lacks specific form data)
+      const isFreshDiagnostic = userData && userData.conditions;
+      
+      if (!isFreshDiagnostic) {
+        // Load from cache if visiting from Dashboard or Timeline
+        const cachedInsight = localStorage.getItem('suraksha_ai_cached_insight');
+        if (cachedInsight) {
+          setInsight(cachedInsight);
+          setAnalyzing(false);
+          return;
+        }
+      }
+
       const apiKey = import.meta.env.VITE_GROQ_API_KEY;
 
-      // If no API key, use fallback mock logic
-      if (!apiKey) {
+      // If no API key or no fresh data, use fallback mock logic but save it so it stays
+      if (!apiKey || !isFreshDiagnostic) {
         setTimeout(() => {
           const mockAdvices = {
             High: "Based on your clinical markers, my AI neurological model suggests an immediate cardiovascular screening. I've flagged the earliest available cardiologists with priority status for you.",
             Medium: "Your metrics show moderate vital strain. I recommend a consultation with a General Physician to baseline your health. Stay active but monitor your heart rate during exertion.",
             Low: "Fantastic! Your health profile is robust. I recommend a periodic Wellness check-in every 6 months to maintain this trend."
           };
-          setInsight(mockAdvices[riskLevel] || mockAdvices.Low);
+          const generatedMock = mockAdvices[riskLevel] || mockAdvices.Low;
+          setInsight(generatedMock);
+          localStorage.setItem('suraksha_ai_cached_insight', generatedMock);
           setAnalyzing(false);
-        }, 2000);
+        }, 1500);
         return;
       }
 
@@ -57,11 +72,15 @@ const AIHealthCoach = ({ riskLevel, userData }) => {
           ],
         });
 
-        setInsight(completion.choices[0].message.content);
+        const resultText = completion.choices[0].message.content;
+        setInsight(resultText);
+        localStorage.setItem('suraksha_ai_cached_insight', resultText);
       } catch (err) {
         console.error("Groq API Error:", err);
         setError(true);
-        setInsight("I'm having trouble connecting to my neural network right now, but based on your local assessment, you should follow the recommended clinical steps below.");
+        const fallbackText = "I'm having trouble connecting to my neural network right now, but based on your local assessment, you should follow the recommended clinical steps below.";
+        setInsight(fallbackText);
+        // Do not cache the error message so it retries on next fresh load
       } finally {
         setAnalyzing(false);
       }
